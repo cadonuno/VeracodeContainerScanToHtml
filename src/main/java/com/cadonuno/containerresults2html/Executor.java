@@ -7,6 +7,8 @@ import com.cadonuno.containerresults2html.json.Cvss;
 import com.cadonuno.containerresults2html.json.PolicyResult;
 import com.cadonuno.containerresults2html.json.Secrets;
 import com.cadonuno.containerresults2html.json.Vulnerabilities;
+import com.cadonuno.containerresults2html.json.results.ConfigsResult;
+import com.cadonuno.containerresults2html.json.results.SecretResult;
 import com.cadonuno.containerresults2html.parameters.ExecutionParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

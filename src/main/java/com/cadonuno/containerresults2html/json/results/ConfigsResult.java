@@ -1,4 +1,4 @@
-package com.cadonuno.containerresults2html;
+package com.cadonuno.containerresults2html.json.results;
 
 import com.cadonuno.containerresults2html.json.Result;
 
