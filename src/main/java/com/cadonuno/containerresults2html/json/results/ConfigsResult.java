@@ -1,7 +1,10 @@
 package com.cadonuno.containerresults2html.json.results;
 
+import com.cadonuno.containerresults2html.json.Misconfiguration;
 import com.cadonuno.containerresults2html.json.Result;
+import com.cadonuno.containerresults2html.util.NullHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +32,7 @@ public class ConfigsResult {
     }
 
     public static List<ConfigsResult> GetListFromResult(Result result) {
-        return result.misconfigurations.stream()
+        return NullHandler.ifNull(result.misconfigurations, new ArrayList<Misconfiguration>()).stream()
                 .map(misconfiguration -> new ConfigsResult(
                         result.target,
                         result.type,

@@ -1,15 +1,11 @@
 package com.cadonuno.containerresults2html;
 
 
-import com.cadonuno.containerresults2html.json.Configs;
-import com.cadonuno.containerresults2html.json.ContainerScanResults;
-import com.cadonuno.containerresults2html.json.Cvss;
-import com.cadonuno.containerresults2html.json.PolicyResult;
-import com.cadonuno.containerresults2html.json.Secrets;
-import com.cadonuno.containerresults2html.json.Vulnerabilities;
+import com.cadonuno.containerresults2html.json.*;
 import com.cadonuno.containerresults2html.json.results.ConfigsResult;
 import com.cadonuno.containerresults2html.json.results.SecretResult;
 import com.cadonuno.containerresults2html.parameters.ExecutionParameters;
+import com.cadonuno.containerresults2html.util.NullHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -83,6 +79,25 @@ public class Executor {
                 "      .row{width:100%; display: block; min-width:1100px;}\n" +
                 "      .chartruce{background-color: #e2e369;}\n" +
                 "      html,body{background-color:#000;}\n" +
+                "  .panel { " +
+                "       overflow: hidden; " +
+                "       transition: max-height 0.2s ease-out;" +
+                "       max-height: 0;" +
+                "  }" +
+                "  .active, .accordion:hover {\n" +
+                "       background-color: #ccc;\n" +
+                "  }" +
+                "   .accordion {\n" +
+                "       background-color: #eee;\n" +
+                "       color: #444;\n" +
+                "       cursor: pointer;\n" +
+                "       padding: 18px;\n" +
+                "       width: 100%;\n" +
+                "       text-align: left;\n" +
+                "       border: none;\n" +
+                "       outline: none;\n" +
+                "       transition: 0.4s;\n" +
+                "   }" +
                 "  .policyDidNotPass { background: url(https://analysiscenter.veracode.com/images/policy/policyIcon_sprite_new.png) -83px -148px no-repeat; }" +
                 "  .policyPass { background: url(https://analysiscenter.veracode.com/images/policy/policyIcon_sprite_new.png) -83px -454px no-repeat; }" +
                 "  .policyPassIcon { height: 70px; width: 100%; float: left; }" +
@@ -100,20 +115,20 @@ public class Executor {
                 "     </div>\n" +
                 "     <div id=\"wrapper\">\n" +
                 "        <div class=\"row\">\n" +
-                "           <h3>Policy Results</h3>\n" +
-                "          <div id=\"gridPolicyResults\"></div>\n" +
+                "           <button class=\"accordion\">Policy Results</button>\n" +
+                "           <div class=\"panel\" id=\"gridPolicyResults\"></div>\n" +
                 "        </div>\n" +
                 "        <div class=\"row\">\n" +
-                "           <h3>Vulnerabilities</h3>\n" +
-                "          <div id=\"gridVulnerabilities\"></div>\n" +
+                "           <button class=\"accordion\">Vulnerabilities</button>\n" +
+                "           <div class=\"panel\" id=\"gridVulnerabilities\"></div>\n" +
                 "        </div>\n" +
                 "        <div class=\"row\">\n" +
-                "           <h3>Secrets</h3>\n" +
-                "          <div id=\"gridSecrets\"></div>\n" +
+                "           <button class=\"accordion\">Secrets</button>\n" +
+                "           <div class=\"panel\" id=\"gridSecrets\"></div>\n" +
                 "        </div>\n" +
                 "        <div class=\"row\">\n" +
-                "           <h3>Configuration</h3>\n" +
-                "          <div id=\"gridConfigs\"></div>\n" +
+                "           <button class=\"accordion\">IaC Configuration</button>\n" +
+                "           <div class=\"panel\" id=\"gridConfigs\"></div>\n" +
                 "        </div>\n" +
                 "      </div>\n" +
                 "    </div>\n" +
@@ -126,27 +141,45 @@ public class Executor {
                 "        pagination: true,\n" +
                 "        data: [" + getPolicyResultsTable(containerScanResults.policyResults) + "]\n" +
                 "      }).render(document.getElementById(\"gridPolicyResults\"));\n" +
+
                 "      new gridjs.Grid({\n" +
                 "        columns: [\"Component Name\", \"Version\", \"Severity\", \"CVSS\"],\n" +
                 "        search: true,\n" +
                 "        sort: true,\n" +
                 "        pagination: true,\n" +
-                "        data: [" + getVulnerabilitiesTable(containerScanResults.vulnerabilities) + "]\n" +
+                "        data: [" + getVulnerabilitiesTable(NullHandler.ifNull(containerScanResults.vulnerabilities, containerScanResults.findings.vulnerabilities)) + "]\n" +
                 "      }).render(document.getElementById(\"gridVulnerabilities\"));\n" +
+
                 "      new gridjs.Grid({\n" +
                 "        columns: [\"Target\", \"Category\", \"Start Line\", \"End Line\", \"Match\", \"Severity\", \"Title\"],\n" +
                 "        search: true,\n" +
                 "        sort: true,\n" +
                 "        pagination: true,\n" +
-                "        data: [" + getSecretsTable(containerScanResults.secrets) + "]\n" +
+                "        data: [" + getSecretsTable(NullHandler.ifNull(containerScanResults.secrets, containerScanResults.findings.secrets)) + "]\n" +
                 "      }).render(document.getElementById(\"gridSecrets\"));\n" +
+
                 "      new gridjs.Grid({\n" +
                 "        columns: [\"Target\", \"Type\", \"VDID\", \"Title\", \"Severity\", \"Message\", \"Description\", \"Resolution\"],\n" +
                 "        search: true,\n" +
                 "        sort: true,\n" +
                 "        pagination: true,\n" +
-                "        data: [" + getConfigsTable(containerScanResults.configs) + "]\n" +
+                "        data: [" + getConfigsTable(containerScanResults) + "]\n" +
                 "      }).render(document.getElementById(\"gridConfigs\"));\n" +
+
+                "       var acc = document.getElementsByClassName(\"accordion\");\n" +
+                "       var i;\n" +
+
+                "       for (i = 0; i < acc.length; i++) {\n" +
+                "         acc[i].addEventListener(\"click\", function() {\n" +
+                "           this.classList.toggle(\"active\");\n" +
+                "           var panel = this.nextElementSibling;\n" +
+                "           if (panel.style.maxHeight) {\n" +
+                "             panel.style.maxHeight = null;\n" +
+                "           } else {\n" +
+                "             panel.style.maxHeight = panel.scrollHeight + \"px\";\n" +
+                "           }\n" +
+                "         });\n" +
+                "       }" +
                 "    </script>\n" +
                 "  </body>\n" +
                 "</html>";
@@ -194,8 +227,12 @@ public class Executor {
                         SecretResult::getTitle));
     }
 
-    private static String getConfigsTable(Configs configs) {
-        return getListAsGridElements(configs.results.stream()
+    private static String getConfigsTable(ContainerScanResults containerScanResults) {
+        ArrayList<Result> results =
+                containerScanResults.configs != null
+                        ? containerScanResults.configs.results
+                        : containerScanResults.findings.iac.results;
+        return getListAsGridElements(results.stream()
                         .map(ConfigsResult::GetListFromResult)
                         .flatMap(List::stream)
                         .collect(Collectors.toList()),
@@ -212,7 +249,7 @@ public class Executor {
 
     private static <T> String getListAsGridElements(List<T> elementList, List<Function<T, String>> elementExtractors) {
         int lastElementIndex = elementList.size() - 1;
-        StringBuilder elementsAsStringBuilder = new StringBuilder("");
+        StringBuilder elementsAsStringBuilder = new StringBuilder();
         for (int currentElement = 0; currentElement <= lastElementIndex; currentElement++) {
             buildElement(elementList.get(currentElement), elementExtractors, elementsAsStringBuilder);
             if (currentElement < lastElementIndex) {

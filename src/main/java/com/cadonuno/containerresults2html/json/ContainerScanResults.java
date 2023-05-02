@@ -5,6 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 
 public class ContainerScanResults {
+
+    @JsonProperty("target_id")
+    public String targetId;
+
+    public Findings findings;
+
     public Vulnerabilities vulnerabilities;
     public Secrets secrets;
     public Configs configs;

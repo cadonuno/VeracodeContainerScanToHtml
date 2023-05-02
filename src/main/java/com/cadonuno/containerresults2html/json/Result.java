@@ -15,4 +15,7 @@ public class Result{
     public ArrayList<Misconfiguration> misconfigurations;
     @JsonProperty("Type")
     public String type;
+
+    @JsonProperty("MisconfSummary")
+    public MisconfSummary misconfSummary;
 }

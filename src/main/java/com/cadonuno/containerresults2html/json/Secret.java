@@ -21,4 +21,7 @@ public class Secret{
     public int startLine;
     @JsonProperty("Title")
     public String title;
+
+    @JsonProperty("Deleted")
+    public boolean deleted;
 }
