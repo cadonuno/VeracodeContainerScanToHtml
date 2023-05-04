@@ -32,7 +32,7 @@ public class ConfigsResult {
     }
 
     public static List<ConfigsResult> GetListFromResult(Result result) {
-        return NullHandler.ifNull(result.misconfigurations, new ArrayList<Misconfiguration>()).stream()
+        return NullHandler.ifNull(result.misconfigurations, () -> new ArrayList<Misconfiguration>()).stream()
                 .map(misconfiguration -> new ConfigsResult(
                         result.target,
                         result.type,

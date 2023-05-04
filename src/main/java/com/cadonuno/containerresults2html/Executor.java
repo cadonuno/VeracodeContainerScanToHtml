@@ -28,7 +28,7 @@ public class Executor {
             throw new FileNotFoundException("Couldn't find file named " + fileToRead.getAbsolutePath());
         }
         try (InputStream inputStream = new FileInputStream(fileToRead)) {
-            saveResultsAsAs(
+            saveResultsAs(
                     new ObjectMapper().readValue(inputStream, ContainerScanResults.class),
                     executionParameters.getFileToSave());
         } catch (IOException e) {
@@ -36,7 +36,7 @@ public class Executor {
         }
     }
 
-    private static void saveResultsAsAs(ContainerScanResults containerScanResults, String fileToSave) {
+    private static void saveResultsAs(ContainerScanResults containerScanResults, String fileToSave) {
         String reportHtml = getReportXml(containerScanResults);
         try (PrintWriter printWriter = new PrintWriter(fileToSave)) {
             printWriter.println(reportHtml);
@@ -147,7 +147,7 @@ public class Executor {
                 "        search: true,\n" +
                 "        sort: true,\n" +
                 "        pagination: true,\n" +
-                "        data: [" + getVulnerabilitiesTable(NullHandler.ifNull(containerScanResults.vulnerabilities, containerScanResults.findings.vulnerabilities)) + "]\n" +
+                "        data: [" + getVulnerabilitiesTable(NullHandler.ifNull(containerScanResults.vulnerabilities, () -> containerScanResults.findings.vulnerabilities)) + "]\n" +
                 "      }).render(document.getElementById(\"gridVulnerabilities\"));\n" +
 
                 "      new gridjs.Grid({\n" +
@@ -155,7 +155,7 @@ public class Executor {
                 "        search: true,\n" +
                 "        sort: true,\n" +
                 "        pagination: true,\n" +
-                "        data: [" + getSecretsTable(NullHandler.ifNull(containerScanResults.secrets, containerScanResults.findings.secrets)) + "]\n" +
+                "        data: [" + getSecretsTable(NullHandler.ifNull(containerScanResults.secrets, () -> containerScanResults.findings.secrets)) + "]\n" +
                 "      }).render(document.getElementById(\"gridSecrets\"));\n" +
 
                 "      new gridjs.Grid({\n" +
